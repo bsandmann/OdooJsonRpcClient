@@ -13,11 +13,17 @@ using PortaCapena.OdooJsonRpcClient.Shared;
 using PortaCapena.OdooJsonRpcClient.Shared.Models;
 using PortaCapena.OdooJsonRpcClient.Shared.Models.Create;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PortaCapena.OdooJsonRpcClient.Example
 {
     public class OdooClientTests : RequestTestBase
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+        public OdooClientTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
 
         [Fact]
         public async Task Can_get_odoo_version()
@@ -510,20 +516,21 @@ namespace PortaCapena.OdooJsonRpcClient.Example
         //[Fact]
         public async Task OnChange_test()
         {
+            var odooClient = new OdooClient(TestConfig);
             try
             {
-                var loginResult = await OdooClient.LoginAsync(TestConfig);
+                var loginResult = await odooClient.LoginAsync(TestConfig);
 
                 var param = new OdooRequestParams(TestConfig.ApiUrlJson, "object", "execute", TestConfig.DbName, loginResult.Value, TestConfig.Password, "sale.order", OdooOperation.OnChage,
                     new Dictionary<string, int>() { { "onchange_pricelist_id", 17 } }, 135);
                 var request = new OdooRequestModel(param);
 
-                var result = OdooClient.CallAsync(request);
+                var result = odooClient.CallAsync(request);
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _testOutputHelper.WriteLine(e.ToString());
                 throw;
             }
         }
@@ -620,7 +627,7 @@ namespace PortaCapena.OdooJsonRpcClient.Example
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _testOutputHelper.WriteLine(e.ToString());
                 throw;
             }
         }
