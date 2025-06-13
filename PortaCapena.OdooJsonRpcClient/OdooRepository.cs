@@ -4,6 +4,7 @@ using PortaCapena.OdooJsonRpcClient.Extensions;
 using PortaCapena.OdooJsonRpcClient.Models;
 using PortaCapena.OdooJsonRpcClient.Request;
 using PortaCapena.OdooJsonRpcClient.Result;
+using System.Net.Http;
 
 namespace PortaCapena.OdooJsonRpcClient
 {
@@ -13,13 +14,17 @@ namespace PortaCapena.OdooJsonRpcClient
         protected readonly OdooClient OdooClient;
         public OdooConfig Config => OdooClient.Config;
 
-        public OdooQueryBuilder<T> Query() => new OdooQueryBuilder<T>(OdooClient);
-
-        public OdooRepository(OdooConfig config)
+        public OdooRepository(HttpClient httpClient, OdooConfig config) : this(new OdooClient(httpClient, config)) {}
+        
+        public OdooRepository(OdooConfig config) : this(new OdooClient(config)) {}
+        
+        public OdooRepository(OdooClient client)
         {
-            OdooClient = new OdooClient(config);
+            OdooClient = client;
             TableName = OdooExtensions.GetOdooTableName<T>();
         }
+        
+        public OdooQueryBuilder<T> Query() => new OdooQueryBuilder<T>(OdooClient);
 
         public async Task<OdooResult<long>> CreateAsync(IOdooCreateModel model, OdooContext context = null)
         {
